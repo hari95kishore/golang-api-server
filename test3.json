@@ -1,0 +1,17 @@
+{
+    "name": "datacenter-2",
+    "metadata": {
+      "monitoring": {
+        "enabled": "true"
+      },
+      "limits": {
+        "cpu": {
+          "enabled": "true",
+          "value": "350m",
+          "another": {
+            "test": "yes"
+          }
+        }
+      }
+    }
+  }

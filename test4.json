@@ -1,0 +1,10 @@
+{
+    "name": "hari-test",
+    "metadata": {
+        "hello": "fresh",
+        "interview": {
+            "excellent": "yes",
+            "offer": "yes"
+        }
+    }
+}

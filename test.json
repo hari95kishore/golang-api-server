@@ -1,0 +1,35 @@
+{
+    "name": "burger-nutrition",
+    "metadata": {
+      "calories": 230,
+      "monitoring": {
+        "enabled": "true"
+      },
+      "fats": {
+        "saturated-fat": "0g",
+        "trans-fat": "1g",
+        "glyceric": {
+            "non": "20",
+            "yes": {
+                "enabled": "true",
+                "testenabled": {
+                    "another": {
+                        "final": {
+                            "done": "yes"
+                        }
+                    }
+                }
+            }
+        }
+      },
+      "carbohydrates": {
+          "dietary-fiber": "95g",
+          "sugars": "1g"
+      },
+      "allergens": {
+        "nuts": "false",
+        "seafood": "false",
+        "eggs": "true"
+      }
+    }
+  }
