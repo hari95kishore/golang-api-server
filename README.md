@@ -78,7 +78,7 @@ Response example-2:
   {
     "name": "burger-nutrition",
     "metadata": {
-      "calories": 230,
+      "calories": "230",
       "fats": {
         "saturated-fat": "0g",
         "trans-fat": "1g"
@@ -107,9 +107,3 @@ Response example-2:
 
 Your application **MUST** serve the API on the port defined by the environment variable `SERVE_PORT`.
 The application **MUST** fail if the environment variable is not defined.
-
-### Deployment
-
-The application **MUST** be deployable on a kubernetes cluster. Please provide manifest files and a script that deploys the application on a minikube cluster.
-The application **MUST** be accessible from outside the minikube cluster.
-
