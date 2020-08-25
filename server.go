@@ -71,7 +71,15 @@ func (c *configHandler) singleConfigMethods(w http.ResponseWriter, r *http.Reque
 
 
 // Query database and respond with matching config
+// URL: /search?metadata.key=value
+// Method: GET
+// Output: json of configs matching the query
 func (c *configHandler) queryDatabase(w http.ResponseWriter, r *http.Request) {
+    if r.Method != "GET" {
+        w.WriteHeader(http.StatusMethodNotAllowed)
+        w.Write([]byte("Method not allowed"))
+        return
+    }
     params := strings.Split(strings.Split(r.URL.String(), "?")[1], ".")
     if params[0] != "metadata" {
         log.Print("wrong query")
@@ -100,11 +108,18 @@ func (c *configHandler) queryDatabase(w http.ResponseWriter, r *http.Request) {
                                 log.Print(reqConfigs)
                                 break
                             }
-                            parse(val.(map[string]interface{}))
                         }
                         parse(val.(map[string]interface{}))
                     default:
-                        log.Print(key, ":", actualVal)
+                        if len(params) == 2 {
+                            if key == lastparam {
+                                if actualVal == searchvalue {
+                                    reqConfigs = append(reqConfigs, config)
+                                    log.Print(reqConfigs)
+                                    break
+                                }
+                            }
+                        }
                 }
             }
         }
@@ -124,8 +139,11 @@ func (c *configHandler) queryDatabase(w http.ResponseWriter, r *http.Request) {
 }
 
 // Fetch all exisitng configs and respond
+// URL: /configs
+// Method: GET
+// Output: json of all configs in the database
 func (c *configHandler) getAllConfigs(w http.ResponseWriter, r *http.Request) {
-    log.Print("received /configs GET request from %v", r.Host)
+    log.Printf("received /configs GET request from %v", r.Host)
     configs := make([]Config, len(c.database))
 
     c.Lock()
@@ -167,9 +185,12 @@ func (c *configHandler) filterConfig(w http.ResponseWriter, r *http.Request) *Co
 }
 
 // Fetch the desired config and respond
+// URL: /configs/{name}
+// Method: GET
+// Output: json of requested config
 func (c *configHandler) getConfig(w http.ResponseWriter, r *http.Request) {
     reqconfig := c.filterConfig(w, r)
-    log.Print("received /configs/%v GET request from %v", reqconfig.Name, r.Host)
+    log.Printf("received /configs/%v GET request from %v", reqconfig.Name, r.Host)
 
     responsejson, err := json.Marshal(reqconfig)
     if err != nil {
@@ -183,9 +204,12 @@ func (c *configHandler) getConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 // Update the desire config and respond
+// URL: /configs/{name}
+// Method: PUT/PATCH
+// Output: updates the existing config with new config
 func (c *configHandler) updateConfig(w http.ResponseWriter, r *http.Request) {
     reqconfig := c.filterConfig(w, r)
-    log.Print("received /configs/%v PUT/PATCH request from %v", reqconfig.Name, r.Host)
+    log.Printf("received /configs/%v PUT/PATCH request from %v", reqconfig.Name, r.Host)
 
     requestbody, err := ioutil.ReadAll(r.Body)
     defer r.Body.Close()
@@ -207,23 +231,29 @@ func (c *configHandler) updateConfig(w http.ResponseWriter, r *http.Request) {
     c.database[reqconfig.Name] = updatedconfig
     c.Unlock()
 
-    log.Print("config %v updated successfully", reqconfig.Metadata)
+    log.Printf("config %v updated successfully", reqconfig.Metadata)
     w.WriteHeader(http.StatusOK)
 }
 
 
 // Delete the desire config and respond
+// URL: /configs/{name}
+// Method: DELETE
+// Output: deletes the desired config from database
 func (c *configHandler) deleteConfig(w http.ResponseWriter, r *http.Request) {
     reqconfig := c.filterConfig(w, r)
-    log.Print("received /configs/%v DELETE request from %v", reqconfig.Name, r.Host)
+    log.Printf("received /configs/%v DELETE request from %v", reqconfig.Name, r.Host)
     delete(c.database, reqconfig.Name)
-    log.Print("deleted %v successfully from database", reqconfig.Name)
+    log.Printf("deleted %v successfully from database", reqconfig.Name)
     w.WriteHeader(http.StatusOK)
 }
 
 // Create a new config from requestbody
+// URL: /configs
+// Method: POST
+// Output: create a new config
 func (c *configHandler) createNewConfig(w http.ResponseWriter, r *http.Request) {
-    log.Print("received /configs POST request from %v", r.Host)
+    log.Printf("received /configs POST request from %v", r.Host)
     requestbody, err := ioutil.ReadAll(r.Body)
     defer r.Body.Close()
     if err != nil {
